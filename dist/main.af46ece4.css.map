@@ -1,1 +1,1 @@
-{"version":3,"sources":["main.css"],"names":[],"mappings":"AAAA","file":"main.af46ece4.css","sourceRoot":"..","sourcesContent":[""]}
+{"version":3,"sources":["main.css"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA","file":"main.af46ece4.css","sourceRoot":"..","sourcesContent":[".hidden {\r\n    display: none;\r\n}\r\n\r\n.videoTitle {\r\n    font-size: 1.35rem;\r\n    cursor: pointer;\r\n}\r\n\r\n#form {\r\n    margin: 0, auto;\r\n}"]}

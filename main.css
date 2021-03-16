@@ -1,0 +1,12 @@
+.hidden {
+    display: none;
+}
+
+.videoTitle {
+    font-size: 1.35rem;
+    cursor: pointer;
+}
+
+#form {
+    margin: 0, auto;
+}

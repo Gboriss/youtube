@@ -135,8 +135,8 @@ btn.addEventListener('click', function () {
 function videoSearch(key, maxResults, search) {
   var promise = new Promise(function (resolve, reject) {
     if (searchInput.value !== '') {
-      var requestUrl = requestLink(key, maxResults, search);
-      console.log('new videos');
+      var requestUrl = requestLink(key, maxResults, search); // console.log('new videos')
+
       var xhr = new XMLHttpRequest();
       xhr.open('GET', requestUrl, true);
       xhr.responseType = 'json';
@@ -153,12 +153,109 @@ function videoSearch(key, maxResults, search) {
     }
   });
   promise.then(function (data) {
-    console.log(data);
+    // console.log(data)
+    output.innerHTML = searchWord(searchInput.value);
+    var index = 0;
+    var containers = new Array();
+    var views = new Array(); // getting the number of views for each video
+    // Only finished broadcasts and premieres are displayed
+
+    data.items.forEach(function (video) {
+      var promiseStats = new Promise(function (resolve, reject) {
+        var statUrl = link(video.id.videoId); // console.log('Getting the number of views for a video with id:', video.id.videoId)
+
+        var xhrStats = new XMLHttpRequest();
+        xhrStats.open('GET', statUrl, true);
+        xhrStats.responseType = 'json';
+
+        xhrStats.onload = function () {
+          xhrStats.status >= 400 ? console.error(xhrStats.response) : resolve(xhrStats.response);
+        };
+
+        xhrStats.onerror = function () {
+          reject(xhrStats.response);
+        };
+
+        xhrStats.send();
+      }); // sorting new videos by number of views
+
+      promiseStats.then(function (data) {
+        index++;
+        var viewCount = data.items[0].statistics.viewCount;
+        containers.push({
+          videos: video,
+          viewCounts: viewCount
+        });
+        views.push(viewCount);
+
+        if (index == maxResults) {
+          views.sort(compare);
+
+          for (var viewsCounter = 0; viewsCounter < views.length; viewsCounter++) {
+            for (var containerCounter = 0; containerCounter < containers.length; containerCounter++) {
+              if (containers[containerCounter].viewCounts == views[viewsCounter]) {
+                videoElement(containers[containerCounter].videos); // console.log('viewsCounter)
+              }
+            }
+          }
+        }
+      });
+    });
   });
 }
 
 function requestLink(key, maxResults, search) {
   return 'https://www.googleapis.com/youtube/v3/search??eventType=completed&order=date&part=snippet&key=' + key + '&type=video&part=snippet&maxResults=' + maxResults + '&q=' + search;
+}
+
+function searchWord(search) {
+  return "<p class=\"result\">\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u043F\u043E\u0438\u0441\u043A\u0430 \u043F\u043E \u0437\u0430\u043F\u0440\u043E\u0441\u0443: <b><span id=\"resultWord\">".concat(search, "</span></b></p>");
+}
+
+function compare(a, b) {
+  return b - a;
+}
+
+function videoElement(array) {
+  var videoTitle = array.snippet.title;
+  var author = array.snippet.channelTitle;
+  var d = new Date(array.snippet.publishedAt);
+  var options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+    timezone: 'UTC' // hour: 'numeric',
+    // minute: 'numeric',
+    // second: 'numeric'
+
+  };
+  var element = "\n        <div class=\"element mb-3\" style=\"background-color: #c9e3ff\">\n            <div class=\"elementInner d-flex justify-content-start align-items-center\">\n                <img src=\"".concat(array.snippet.thumbnails.medium.url, "\" alt=\"preview\" class=\"preview m-3\" style=\"width: 160px\">\n                <div class=\"elementDesc w-75\">\n                    <h3 class=\"videoTitle\">").concat(videoTitle.length > 60 ? videoTitle.slice(0, 60) + '...' : videoTitle, "</h3>\n                    <p id=\"author\">\u0410\u0432\u0442\u043E\u0440: ").concat(author.length > 40 ? author.slice(0, 40) + '...' : author, "</p>\n                </div>\n                <div class=\"videoInfo d-flex flex-column justify-content-center\">\n                    <p id=\"videoDate\">\u0414\u0430\u0442\u0430 \u043F\u0443\u0431\u043B\u0438\u043A\u0430\u0446\u0438\u0438:</p>\n                    <p id=\"videoDate\">").concat(d.toLocaleString("ru", options), "</p>\n                </div>\n            </div>\n            <div class=\"videoPlayer hidden m-3\">\n                <iframe id=\"ytplayer\" class=\"mx-auto\" type=\"text/html\" width=\"97.5%\" height=\"600\" src=\"https://www.youtube.com/embed/").concat(array.id.videoId, "\" frameborder=\"0\" allowfullscreen></iframe>\n            </div>\n        </div>\n    ");
+  output.innerHTML += element;
+  searchInput.value = '';
+  var title = document.querySelectorAll('.videoTitle');
+  var elements = document.querySelectorAll('.element');
+
+  var _loop = function _loop(i) {
+    title[i].addEventListener('click', function () {
+      for (var y = 0; y < title.length; y++) {
+        elements[y].querySelector('.videoPlayer').classList.add('hidden');
+      }
+
+      elements[i].querySelector('.videoPlayer').classList.toggle('hidden');
+      title[i].addEventListener('click', function () {
+        elements[i].querySelector('.videoPlayer').classList.toggle('hidden');
+      });
+    });
+  };
+
+  for (var i = 0; i < title.length; i++) {
+    _loop(i);
+  }
+}
+
+function link(videoId) {
+  return "https://www.googleapis.com/youtube/v3/videos?part=snippet%2Cstatistics&id=".concat(videoId, "&fields=items%2Fstatistics(viewCount)&key=").concat(API);
 }
 },{}],"C:/Users/Xiaomi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -188,7 +285,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61038" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50927" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
