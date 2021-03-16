@@ -10,6 +10,9 @@
 
 __
 
+### Project link
+https://relaxed-heisenberg-625a3b.netlify.app/
+
 ### START
 parcel index.html
 
