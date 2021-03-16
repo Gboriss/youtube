@@ -126,6 +126,40 @@ var output = document.getElementById('output');
 form.addEventListener('submit', function (event) {
   event.preventDefault();
 });
+btn.addEventListener('click', function () {
+  var searching = searchInput.value;
+  videoSearch(API, MAX_RESULTS, searching);
+  output.innerHTML = '';
+});
+
+function videoSearch(key, maxResults, search) {
+  var promise = new Promise(function (resolve, reject) {
+    if (searchInput.value !== '') {
+      var requestUrl = requestLink(key, maxResults, search);
+      console.log('new videos');
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', requestUrl, true);
+      xhr.responseType = 'json';
+
+      xhr.onload = function () {
+        xhr.status >= 400 ? console.error(xhr.response) : resolve(xhr.response);
+      };
+
+      xhr.onerror = function () {
+        reject(xhr.response);
+      };
+
+      xhr.send();
+    }
+  });
+  promise.then(function (data) {
+    console.log(data);
+  });
+}
+
+function requestLink(key, maxResults, search) {
+  return 'https://www.googleapis.com/youtube/v3/search??eventType=completed&order=date&part=snippet&key=' + key + '&type=video&part=snippet&maxResults=' + maxResults + '&q=' + search;
+}
 },{}],"C:/Users/Xiaomi/AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -154,7 +188,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60820" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61038" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
